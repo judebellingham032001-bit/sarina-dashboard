@@ -29,7 +29,7 @@ app.get('/', async (req, res) => {
         ]);
 
         const linesS = resS.data.split(/\r?\n/);
-        const lastUpdate = splitCSV(linesS[0])[7] || "-"; 
+        const lastUpdate = splitCSV(linesS[0])[0] || "-"; 
         const stocks = linesS.slice(13).map(l => {
             const c = splitCSV(l);
             return { nama: c[0], qty: parseFloat(c[1]) || 0, display: c[3] };
