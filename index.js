@@ -1,7 +1,6 @@
 const express = require('express');
 const axios = require('axios');
 const app = express();
-
 app.set('view engine', 'ejs');
 
 function splitCSV(line) {
@@ -45,15 +44,10 @@ app.get('/', async (req, res) => {
         const kasAll = linesK.slice(5).map(l => {
             const c = splitCSV(l);
             if (c[0] && c[0].trim() !== "") tempDate = c[0];
-            // Bersihkan simbol Rp dari data mentah agar tidak double
-            const cleanSaldo = (c[6]||"").replace(/Rp\s?/g, "");
-            const cleanDebet = (c[4]||"").replace(/Rp\s?/g, "");
-            const cleanKredit = (c[5]||"").replace(/Rp\s?/g, "");
-            return { tgl: tempDate, kat: c[1], ket: c[2], bukti: c[3], debet: cleanDebet, kredit: cleanKredit, saldo: cleanSaldo };
+            return { tgl: tempDate, kat: c[1], ket: c[2], debet: c[4], kredit: c[5], saldo: c[6] };
         }).filter(t => t.kat && t.kat !== "Kategori");
 
-        const rawSaldo = kasAll.length > 0 ? kasAll[kasAll.length - 1].saldo : "0";
-        const saldoTotal = rawSaldo.replace(/Rp\s?/g, "");
+        const saldoTotal = kasAll.length > 0 ? kasAll[kasAll.length - 1].saldo : "0";
 
         res.render('index', { stocks, shippingAll, kasAll, saldoTotal, lastUpdate });
     } catch (e) {
@@ -62,4 +56,4 @@ app.get('/', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, '0.0.0.0', () => { console.log(`🚀 Port Aktif: ${PORT}`); });
+app.listen(PORT, '0.0.0.0', () => { console.log(`🚀 Aktif di Port ${PORT}`); });
