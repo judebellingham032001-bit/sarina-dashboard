@@ -4,18 +4,18 @@ const session = require('express-session');
 const app = express();
 
 // --- KONFIGURASI ---
-const PASSWORD_WEB = "sarina123"; // Ganti password sesukamu di sini
+const PASSWORD_WEB = "sarina123"; 
 // -------------------
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
-    secret: 'rahasia-sarina-store',
+    secret: 'sarina-secret-key',
     resave: false,
     saveUninitialized: true
 }));
 
-// Fungsi pemecah CSV agar data tidak berantakan jika ada koma di dalam teks
+// Helper pecah CSV
 function splitCSV(line) {
     const result = [];
     let cur = '';
@@ -30,13 +30,12 @@ function splitCSV(line) {
     return result;
 }
 
-// HALAMAN LOGIN
+// LOGIN PAGE
 app.get('/login', (req, res) => {
     res.send(`
-        <body style="display:flex;justify-content:center;align-items:center;height:100vh;background:#f0f2f5;font-family:sans-serif">
-            <form action="/login" method="POST" style="background:white;padding:40px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.1);width:300px;text-align:center">
-                <h2 style="color:#007bff;margin-bottom:10px">Sarina Store</h2>
-                <p style="color:#666;margin-bottom:25px">Silahkan Login Dashboard</p>
+        <body style="display:flex;justify-content:center;align-items:center;height:100vh;background:#f8f9fa;font-family:sans-serif">
+            <form action="/login" method="POST" style="background:white;padding:40px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.05);width:300px;text-align:center">
+                <h2 style="color:#007bff;margin-bottom:20px">Sarina Store</h2>
                 <input type="password" name="pass" placeholder="Password" required style="width:100%;padding:12px;margin-bottom:20px;border:1px solid #ddd;border-radius:10px;outline:none">
                 <button type="submit" style="width:100%;padding:12px;background:#007bff;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:bold">MASUK</button>
             </form>
@@ -53,12 +52,11 @@ app.post('/login', (req, res) => {
     }
 });
 
-// HALAMAN DASHBOARD UTAMA
+// DASHBOARD
 app.get('/', async (req, res) => {
     if (!req.session.loggedIn) return res.redirect('/login');
 
     try {
-        // Link CSV Google Sheets (Pastikan sudah di-share "Anyone with link")
         const urlS = "https://docs.google.com/spreadsheets/d/1xTVwqw9a3BMrmHEir9wQEidVxIgUhvCP_qj8jHY0u7w/export?format=csv&gid=0";
         const urlR = "https://docs.google.com/spreadsheets/d/16N1Jpc11GUJyKqpyEvueKx0ccroVJfG-s6yP3DxxyX4/export?format=csv&gid=0";
         const urlK = "https://docs.google.com/spreadsheets/d/1oT_uV104wNhTOmJjX_MOzvpkkX0_QAvMYOirsVFbTYo/export?format=csv&gid=0";
@@ -67,7 +65,7 @@ app.get('/', async (req, res) => {
             axios.get(urlS), axios.get(urlR), axios.get(urlK)
         ]);
 
-        // 1. Proses Data STOCKS
+        // 1. STOCKS
         const linesS = resS.data.split(/\r?\n/);
         const lastUpdate = splitCSV(linesS[0])[7] || "-"; 
         const stocks = linesS.slice(13).map(l => {
@@ -75,32 +73,30 @@ app.get('/', async (req, res) => {
             return { nama: c[0], qty: parseFloat(c[1]) || 0, ds: c[3] };
         }).filter(i => i.nama);
 
-        // 2. Proses Data SHIPPING
+        // 2. SHIPPING (Reverse agar tgl terbaru di atas)
         const shippingAll = resR.data.split(/\r?\n/).slice(3).map(l => {
             const c = splitCSV(l);
             return { tgl: c[6], spx: c[7], jne: c[8], jnt: c[9], sd: c[10], tot: c[11] };
-        }).filter(i => i.tgl && i.tgl !== "0");
+        }).filter(i => i.tgl && i.tgl !== "0").reverse();
 
-        // 3. Proses Data KAS
+        // 3. KAS (Reverse agar mutasi terbaru di atas)
         const linesK = resK.data.split(/\r?\n/);
         let tempDate = ""; 
         const kasAll = linesK.slice(5).map(l => {
             const c = splitCSV(l);
             if (c[0] && c[0].trim() !== "") tempDate = c[0];
             return { tgl: tempDate, kat: c[1], ket: c[2], bukti: c[3], debet: c[4], kredit: c[5], saldo: c[6] };
-        }).filter(t => t.kat && t.kat !== "Kategori");
+        }).filter(t => t.kat && t.kat !== "Kategori").reverse();
 
-        const lastTrx = kasAll[kasAll.length - 1];
-        const saldoTotal = lastTrx ? lastTrx.saldo : "0";
+        const saldoTotal = kasAll[0] ? kasAll[0].saldo : "0"; // Saldo paling baru (setelah di-reverse)
 
         res.render('index', { stocks, shippingAll, kasAll, saldoTotal, lastUpdate });
     } catch (e) {
-        res.status(500).send("Gagal memuat data dari Google Sheets. Pastikan link sudah di-share publik! Error: " + e.message);
+        res.status(500).send("Error koneksi Google Sheets: " + e.message);
     }
 });
 
-// LOGIKA PORT RAILWAY (Agar Tidak Crash)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Dashboard Sarina Aktif di Port ${PORT}`);
+    console.log(`🚀 Dashboard Ready on port ${PORT}`);
 });
