@@ -28,7 +28,6 @@ app.get('/', async (req, res) => {
             axios.get(urlS), axios.get(urlR), axios.get(urlK)
         ]);
 
-        // 1. STOCKS (Data mulai baris 14, H1=Last Update)
         const linesS = resS.data.split(/\r?\n/);
         const lastUpdate = splitCSV(linesS[0])[7] || "-"; 
         const stocks = linesS.slice(13).map(l => {
@@ -36,13 +35,11 @@ app.get('/', async (req, res) => {
             return { nama: c[0], qty: parseFloat(c[1]) || 0, display: c[3] };
         }).filter(i => i.nama);
 
-        // 2. SHIPPING
         const shippingAll = resR.data.split(/\r?\n/).slice(3).map(l => {
             const c = splitCSV(l);
             return { tgl: c[6], spx: c[7], jne: c[8], jnt: c[9], sd: c[10], tot: c[11] };
         }).filter(i => i.tgl && i.tgl !== "0");
 
-        // 3. KAS
         const linesK = resK.data.split(/\r?\n/);
         let tempDate = ""; 
         const kasAll = linesK.slice(5).map(l => {
@@ -55,11 +52,9 @@ app.get('/', async (req, res) => {
 
         res.render('index', { stocks, shippingAll, kasAll, saldoTotal, lastUpdate });
     } catch (e) {
-        res.status(500).send("Error koneksi data Sheets: " + e.message);
+        res.status(500).send("Error: " + e.message);
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Sarina Dashboard Aktif`);
-});
+app.listen(PORT, '0.0.0.0', () => { console.log(`🚀 Ready`); });
