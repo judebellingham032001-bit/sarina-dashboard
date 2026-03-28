@@ -56,8 +56,16 @@
         <div class="card-main">
             <button class="btn-riwayat" id="btnShip" onclick="showFilter('shipFilter', 'tableShip', this)">LIHAT RIWAYAT LENGKAP</button>
             <div id="shipFilter" class="filter-area"><div class="row g-2">
-                <div class="col-6"><select id="sMonth" class="form-select" onchange="applyFilter('tableShip', 'sMonth', 'sYear')"><option value="">Bulan</option><option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option><option value="April">April</option><option value="Mei">Mei</option><option value="Juni">Juni</option><option value="Juli">Juli</option><option value="Agustus">Agustus</option><option value="September">September</option><option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option></select></div>
-                <div class="col-6"><select id="sYear" class="form-select" onchange="applyFilter('tableShip', 'sMonth', 'sYear')"><option value="">Tahun</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option> value="2027">2027</option></select></div>
+<div class="col-6">
+    <select id="sYear" class="form-select" onchange="applyFilter('tableShip', 'sMonth', 'sYear')">
+        <option value="">Tahun</option>
+        <option value="2024">2024</option>
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+    </select>
+</div>
             </div></div>
             <div class="table-responsive">
                 <table class="table text-center align-middle" id="tableShip">
@@ -73,8 +81,16 @@
         <div class="card-main">
             <button class="btn-riwayat" id="btnKas" onclick="showFilter('kasFilter', 'tableKas', this)">LIHAT RIWAYAT LENGKAP</button>
             <div id="kasFilter" class="filter-area"><div class="row g-2">
-                <div class="col-6"><select id="kMonth" class="form-select" onchange="applyFilter('tableKas', 'kMonth', 'kYear')"><option value="">Bulan</option><option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option><option value="April">April</option><option value="Mei">Mei</option><option value="Juni">Juni</option><option value="Juli">Juli</option><option value="Agustus">Agustus</option><option value="September">September</option><option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option></select></div>
-                <div class="col-6"><select id="kYear" class="form-select" onchange="applyFilter('tableKas', 'kMonth', 'kYear')"><option value="">Tahun</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option></select></div>
+<div class="col-6">
+    <select id="sYear" class="form-select" onchange="applyFilter('tableShip', 'sMonth', 'sYear')">
+        <option value="">Tahun</option>
+        <option value="2024">2024</option>
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+    </select>
+</div>
             </div></div>
             <div class="table-responsive">
                 <table class="table align-middle" id="tableKas">
