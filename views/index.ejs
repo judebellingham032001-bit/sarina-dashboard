@@ -3,130 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sarina Dashboard</title>
+    <title>Sarina Store Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { 
-            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
-                        url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1600') no-repeat center center fixed;
-            background-size: cover; min-height: 100vh; font-family: 'Inter', sans-serif; color: white; padding: 20px 0;
+        body { background-color: #f4f7f6; color: #333; font-family: sans-serif; padding: 20px 0; }
+        .container { max-width: 600px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .nav-custom { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .nav-link { 
+            background: #ddd; border: none; padding: 10px 20px; 
+            border-radius: 5px; cursor: pointer; font-weight: bold; 
         }
-        .header-area { text-align: center; margin-bottom: 30px; }
-        .logo-box { width: 100px; height: 100px; background: white; border-radius: 20px; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; border: 3px solid #ffc107; overflow: hidden; }
-        .logo-box img { width: 100%; height: auto; }
-        
-        .nav-custom { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 50px; padding: 5px; border: 1px solid rgba(255,255,255,0.2); width: fit-content; margin: 0 auto 25px; }
-        .nav-pills .nav-link { border-radius: 50px; color: white; font-weight: bold; padding: 10px 25px; transition: 0.3s; }
-        .nav-pills .nav-link.active { background: #ffc107 !important; color: #000 !important; }
-
-        .card-main { background: rgba(255,255,255,0.05); backdrop-filter: blur(15px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); padding: 20px; margin-bottom: 20px; }
-        
-        /* FIX TEXT HEADER TABLE */
-        .table thead th { color: #ffc107 !important; border-bottom: 2px solid rgba(255,255,255,0.1); text-transform: uppercase; font-size: 0.8rem; }
-        .table tbody td { color: white !important; vertical-align: middle; border-bottom: 1px solid rgba(255,255,255,0.05); }
-
-        .badge-status { padding: 5px 12px; border-radius: 50px; font-size: 0.7rem; font-weight: bold; }
-        .bg-habis { background: #ff4d4d; } .bg-low { background: #ffa502; } .bg-aman { background: #2ed573; }
-        
-        .saldo-box { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; text-align: center; border-left: 5px solid #2ed573; margin-bottom: 20px; }
-        .saldo-minus { border-left-color: #ff4d4d; }
+        .nav-link.active { background: #007bff; color: white; }
+        .card-main { background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .content-section { display: none; }
         .content-section.active { display: block; }
+        .table { font-size: 14px; }
+        .badge-status { padding: 4px 8px; border-radius: 4px; font-size: 11px; color: white; font-weight: bold; }
+        .bg-habis { background: #dc3545; }
+        .bg-low { background: #ffc107; color: #000; }
+        .bg-aman { background: #28a745; }
+        .saldo-total { background: #28a745; color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header-area">
-        <div class="logo-box">
-            <img src="https://i.ibb.co/Y7YxS9Y/sarina-logo.png" alt="Logo">
-        </div>
-        <h5 class="fw-bold mb-0">SARINA STORE</h5>
-        <small class="opacity-50">Management System</small>
+    <div class="header">
+        <h4 class="fw-bold">SARINA STORE</h4>
+        <p class="text-muted small">Update: <%= lastUpdate %></p>
     </div>
 
-    <ul class="nav nav-pills nav-custom shadow-sm">
-        <li class="nav-item"><button class="nav-link active" onclick="openMenu('stocks', this)">STOCKS</button></li>
-        <li class="nav-item"><button class="nav-link" onclick="openMenu('shipping', this)">SHIPPING</button></li>
-        <li class="nav-item"><button class="nav-link" onclick="openMenu('kas', this)">KAS</button></li>
-    </ul>
+    <div class="nav-custom">
+        <button class="nav-link active" onclick="openMenu('stocks', this)">STOK</button>
+        <button class="nav-link" onclick="openMenu('shipping', this)">KIRIM</button>
+        <button class="nav-link" onclick="openMenu('kas', this)">KAS</button>
+    </div>
 
     <div id="stocks" class="content-section active">
         <div class="card-main">
-            <p class="text-center small opacity-50">Update: <%= lastUpdate %></p>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead><tr><th>Produk</th><th>Detail</th><th class="text-center">Status</th></tr></thead>
-                    <tbody>
-                        <% stocks.forEach(s => { %>
-                            <tr>
-                                <td class="fw-bold"><%= s.nama %></td>
-                                <td class="small opacity-75"><%= s.display %></td>
-                                <td class="text-center"><span class="badge-status <%= s.qty <= 0 ? 'bg-habis' : (s.qty <= 2 ? 'bg-low' : 'bg-aman') %>"><%= s.qty <= 0 ? 'HABIS' : (s.qty <= 2 ? 'LOW' : 'ADA') %></span></td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-            </div>
+            <table class="table">
+                <thead><tr><th>Produk</th><th class="text-center">Status</th></tr></thead>
+                <tbody>
+                    <% stocks.forEach(s => { %>
+                        <tr>
+                            <td><strong><%= s.nama %></strong><br><small class="text-muted"><%= s.display %></small></td>
+                            <td class="text-center align-middle">
+                                <span class="badge-status <%= s.qty <= 0 ? 'bg-habis' : (s.qty <= 2 ? 'bg-low' : 'bg-aman') %>">
+                                    <%= s.qty <= 0 ? 'HABIS' : (s.qty <= 2 ? 'LOW' : 'ADA') %>
+                                </span>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <div id="shipping" class="content-section">
         <div class="card-main">
-            <div class="table-responsive">
-                <table class="table text-center">
-                    <thead><tr><th>Tanggal</th><th>SPX</th><th>JNE</th><th>J&T</th><th>TOT</th></tr></thead>
-                    <tbody>
-                        <% shippingAll.slice(-10).forEach(k => { %>
-                            <tr>
-                                <td class="small text-start text-warning"><%= k.tgl %></td>
-                                <td><%= k.spx %></td><td><%= k.jne %></td><td><%= k.jnt %></td>
-                                <td class="fw-bold text-warning"><%= k.tot %></td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-            </div>
+            <table class="table text-center">
+                <thead class="table-light"><tr><th>Tgl</th><th>SPX</th><th>JNE</th><th>J&T</th><th>TOT</th></tr></thead>
+                <tbody>
+                    <% shippingAll.slice(-10).forEach(k => { %>
+                        <tr>
+                            <td class="text-start"><%= k.tgl %></td>
+                            <td><%= k.spx %></td><td><%= k.jne %></td><td><%= k.jnt %></td>
+                            <td class="fw-bold text-primary"><%= k.tot %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <div id="kas" class="content-section">
-        <div class="saldo-box <%= saldoTotal.includes('-') ? 'saldo-minus' : '' %>">
-            <small class="opacity-50">TOTAL SALDO AKHIR</small>
-            <h2 class="fw-bold mb-0 text-success">Rp <%= saldoTotal %></h2>
+        <div class="saldo-total">
+            <small>SALDO AKHIR</small>
+            <h3 class="fw-bold m-0"><%= saldoTotal %></h3>
         </div>
         <div class="card-main">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead><tr><th>Tanggal</th><th>Ket</th><th class="text-end">Mutasi</th></tr></thead>
-                    <tbody>
-                        <% kasAll.slice(-10).forEach(t => { %>
-                            <tr>
-                                <td class="small text-white-50"><%= t.tgl %></td>
-                                <td><div class="fw-bold small"><%= t.kat %></div><div style="font-size:10px" class="opacity-50"><%= t.ket %></div></td>
-                                <td class="text-end nowrap">
-                                    <div class="fw-bold <%= (t.debet && t.debet != '0') ? 'text-danger' : 'text-success' %>">
-                                        <%= (t.debet && t.debet != '0') ? '-' + t.debet : '+' + t.kredit %>
-                                    </div>
-                                    <div style="font-size:9px" class="opacity-50">Sisa: <%= t.saldo %></div>
-                                </td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-            </div>
+            <table class="table">
+                <thead class="table-light"><tr><th>Ket</th><th class="text-end">Mutasi</th></tr></thead>
+                <tbody>
+                    <% kasAll.slice(-10).forEach(t => { %>
+                        <tr>
+                            <td><small class="text-muted"><%= t.tgl %></small><br><strong><%= t.kat %></strong></td>
+                            <td class="text-end align-middle">
+                                <div class="fw-bold <%= (t.debet && t.debet != '0') ? 'text-danger' : 'text-success' %>">
+                                    <%= (t.debet && t.debet != '0') ? '-' + t.debet : '+' + t.kredit %>
+                                </div>
+                                <small class="text-muted" style="font-size: 10px;">Sisa: <%= t.saldo %></small>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 <script>
     function openMenu(id, el) {
+        // Sembunyikan semua section
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        // Nonaktifkan semua button
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        // Tampilkan yang dipilih
         document.getElementById(id).classList.add('active');
         el.classList.add('active');
     }
 </script>
+
 </body>
 </html>
