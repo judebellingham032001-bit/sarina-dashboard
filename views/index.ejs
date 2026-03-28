@@ -8,30 +8,27 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { 
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
-            min-height: 100vh; font-family: 'Inter', sans-serif; padding: 20px 0;
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); 
+            min-height: 100vh; font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px 0;
         }
         .nav-custom { 
             background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
-            border-radius: 50px; padding: 8px; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+            border-radius: 50px; padding: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
         .nav-pills .nav-link { border-radius: 50px; color: #444; font-weight: 700; border: none; padding: 12px 25px; }
-        .nav-pills .nav-link.active { background: linear-gradient(45deg, #007bff, #00c6ff) !important; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4); }
+        .nav-pills .nav-link.active { background: linear-gradient(45deg, #007bff, #00c6ff) !important; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); }
         
         .card-main { 
             background: white; border-radius: 24px; border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); padding: 25px; margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 25px;
         }
         
-        /* Mobile Fix: Menghindari teks angka pecah/turun ke bawah */
         .nowrap { white-space: nowrap !important; }
-        .table td, .table th { vertical-align: middle; }
-
         .content-section { display: none; }
-        .content-section.active { display: block; animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .content-section.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .filter-box { background: #f8f9fa; border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1px solid #eee; }
+        .filter-area { display: none; background: #f8f9fa; border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1px solid #eee; }
         
         .badge-status { padding: 6px 14px; border-radius: 50px; font-size: 0.7rem; font-weight: 800; }
         .bg-habis { background: #ff7675; color: white; } 
@@ -39,10 +36,12 @@
         .bg-aman { background: #55efc4; color: #006266; }
 
         .saldo-card {
-            background: linear-gradient(45deg, #2d3436, #000000); color: white;
-            border-radius: 20px; padding: 30px; text-align: center; margin-bottom: 25px;
+            background: linear-gradient(45deg, #1e272e, #485460); color: white;
+            border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 25px;
         }
-        .saldo-minus { background: linear-gradient(45deg, #d63031, #8b0000) !important; }
+        .saldo-minus { background: linear-gradient(45deg, #eb3b5a, #a52a2a) !important; }
+
+        .btn-riwayat { background: #f1f2f6; border: none; padding: 10px; width: 100%; border-radius: 12px; color: #007bff; font-weight: bold; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -58,17 +57,15 @@
 
     <div id="stocks" class="content-section active">
         <div class="card-main">
-            <div class="text-center mb-4">
-                <span class="badge bg-primary rounded-pill px-3 py-2">Terakhir Update: <%= lastUpdate %></span>
-            </div>
+            <div class="text-center mb-4 text-muted fw-bold">Update: <span class="text-primary"><%= lastUpdate %></span></div>
             <div class="table-responsive">
-                <table class="table">
-                    <thead><tr><th>Produk</th><th>Quantity</th><th class="text-center">Status</th></tr></thead>
+                <table class="table align-middle">
+                    <thead><tr><th>Produk</th><th>Qty</th><th class="text-center">Status</th></tr></thead>
                     <tbody>
                         <% stocks.forEach(s => { %>
                             <tr>
-                                <td class="fw-bold"><%= s.nama %></td>
-                                <td class="nowrap text-muted fw-bold"><%= s.display %></td>
+                                <td class="fw-bold text-uppercase"><%= s.nama %></td>
+                                <td class="nowrap fw-bold text-muted"><%= s.display %></td>
                                 <td class="text-center">
                                     <span class="badge-status <%= s.qty <= 0 ? 'bg-habis' : (s.qty <= 2 ? 'bg-low' : 'bg-aman') %>">
                                         <%= s.qty <= 0 ? 'HABIS' : (s.qty <= 2 ? 'LOW' : 'TERSEDIA') %>
@@ -84,25 +81,27 @@
 
     <div id="shipping" class="content-section">
         <div class="card-main">
-            <div class="filter-box d-flex gap-2">
-                <select id="shipMonth" class="form-select" onchange="filterData('tableShip', 'shipMonth', 'shipYear')">
-                    <option value="">Semua Bulan</option>
-                    <option value="/01/">Januari</option><option value="/02/">Februari</option><option value="/03/">Maret</option>
-                    <option value="/04/">April</option><option value="/05/">Mei</option><option value="/06/">Juni</option>
-                    <option value="/07/">Juli</option><option value="/08/">Agustus</option><option value="/09/">September</option>
-                    <option value="/10/">Oktober</option><option value="/11/">November</option><option value="/12/">Desember</option>
-                </select>
-                <select id="shipYear" class="form-select" onchange="filterData('tableShip', 'shipMonth', 'shipYear')">
-                    <option value="">Semua Tahun</option>
-                    <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
-                </select>
+            <button class="btn-riwayat" id="btnShip" onclick="showFilter('shipFilter', 'tableShip', this)">LIHAT RIWAYAT LENGKAP</button>
+            <div id="shipFilter" class="filter-area">
+                <div class="row g-2">
+                    <div class="col-6"><select id="sMonth" class="form-select" onchange="applyFilter('tableShip', 'sMonth', 'sYear')">
+                        <option value="">Bulan</option><option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option><option value="April">April</option><option value="Mei">Mei</option><option value="Juni">Juni</option><option value="Juli">Juli</option><option value="Agustus">Agustus</option><option value="September">September</option><option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option>
+                    </select></div>
+                    <div class="col-6"><select id="sYear" class="form-select" onchange="applyFilter('tableShip', 'sMonth', 'sYear')">
+                        <option value="">Tahun</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
+                    </select></div>
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="table text-center align-middle" id="tableShip">
-                    <thead class="table-dark"><tr><th>Tgl</th><th>SPX</th><th>JNE</th><th>J&T</th><th>Same/Inst</th><th>Total</th></tr></thead>
+                    <thead class="table-dark"><tr><th>Tanggal</th><th>SPX</th><th>JNE</th><th>J&T</th><th>Same/Inst</th><th>TOT</th></tr></thead>
                     <tbody>
-                        <% shippingAll.forEach(k => { %>
-                            <tr class="data-row"><td class="nowrap fw-bold"><%= k.tgl %></td><td><%= k.spx %></td><td><%= k.jne %></td><td><%= k.jnt %></td><td><%= k.sd %></td><td class="nowrap fw-bold text-primary"><%= k.tot %></td></tr>
+                        <% shippingAll.forEach((k, index) => { %>
+                            <tr class="data-row" data-index="<%= index %>" data-total="<%= shippingAll.length %>">
+                                <td class="nowrap fw-bold text-start tgl-format"><%= k.tgl %></td>
+                                <td><%= k.spx %></td><td><%= k.jne %></td><td><%= k.jnt %></td><td><%= k.sd %></td>
+                                <td class="nowrap fw-bold text-primary"><%= k.tot %></td>
+                            </tr>
                         <% }) %>
                     </tbody>
                 </table>
@@ -112,37 +111,38 @@
 
     <div id="kas" class="content-section">
         <div class="saldo-card <%= saldoTotal.includes('-') ? 'saldo-minus' : '' %>">
-            <p class="small fw-bold opacity-75 mb-1 text-uppercase">Total Saldo Kas</p>
-            <h1 class="display-4 fw-bold">Rp <%= saldoTotal %></h1>
+            <small class="fw-bold opacity-75">TOTAL SALDO KAS</small>
+            <h1 class="fw-bold mt-1 nowrap">Rp <%= saldoTotal %></h1>
         </div>
         <div class="card-main">
-            <div class="filter-box d-flex gap-2 mb-3">
-                <select id="kasMonth" class="form-select" onchange="filterData('tableKas', 'kasMonth', 'kasYear')">
-                    <option value="">Pilih Bulan</option>
-                    <option value="/01/">Januari</option><option value="/02/">Februari</option><option value="/03/">Maret</option>
-                    <option value="/04/">April</option><option value="/05/">Mei</option><option value="/06/">Juni</option>
-                    <option value="/07/">Juli</option><option value="/08/">Agustus</option><option value="/09/">September</option>
-                    <option value="/10/">Oktober</option><option value="/11/">November</option><option value="/12/">Desember</option>
-                </select>
-                <select id="kasYear" class="form-select" onchange="filterData('tableKas', 'kasMonth', 'kasYear')">
-                    <option value="">Tahun</option>
-                    <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
-                </select>
+            <button class="btn-riwayat" id="btnKas" onclick="showFilter('kasFilter', 'tableKas', this)">LIHAT RIWAYAT LENGKAP</button>
+            <div id="kasFilter" class="filter-area">
+                <div class="row g-2">
+                    <div class="col-6"><select id="kMonth" class="form-select" onchange="applyFilter('tableKas', 'kMonth', 'kYear')">
+                        <option value="">Bulan</option><option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option><option value="April">April</option><option value="Mei">Mei</option><option value="Juni">Juni</option><option value="Juli">Juli</option><option value="Agustus">Agustus</option><option value="September">September</option><option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option>
+                    </select></div>
+                    <div class="col-6"><select id="kYear" class="form-select" onchange="applyFilter('tableKas', 'kMonth', 'kYear')">
+                        <option value="">Tahun</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
+                    </select></div>
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="table align-middle" id="tableKas">
-                    <thead class="table-light"><tr><th>Tgl</th><th>Keterangan</th><th class="text-end">Debet</th><th class="text-end">Kredit</th><th class="text-end">Saldo</th><th class="text-center">Bukti</th></tr></thead>
+                    <thead class="table-light"><tr><th>Tanggal</th><th>Keterangan</th><th class="text-end">Mutasi</th><th class="text-center">Bukti</th></tr></thead>
                     <tbody>
-                        <% kasAll.forEach(t => { %>
-                            <tr class="data-row" style="font-size: 0.85rem;">
-                                <td class="nowrap text-muted"><%= t.tgl %></td>
-                                <td><div class="fw-bold text-uppercase"><%= t.kat %></div><div class="small text-muted"><%= t.ket %></div></td>
-                                <td class="text-end text-danger fw-bold nowrap"><%= t.debet != '0' ? '-' + t.debet : '' %></td>
-                                <td class="text-end text-success fw-bold nowrap"><%= t.kredit != '0' ? '+' + t.kredit : '' %></td>
-                                <td class="text-end fw-bold nowrap"><%= t.saldo %></td>
+                        <% kasAll.forEach((t, index) => { %>
+                            <tr class="data-row" data-index="<%= index %>" data-total="<%= kasAll.length %>" style="font-size: 0.85rem;">
+                                <td class="nowrap text-muted tgl-format"><%= t.tgl %></td>
+                                <td><div class="fw-bold"><%= t.kat %></div><div class="small text-muted"><%= t.ket %></div></td>
+                                <td class="text-end nowrap">
+                                    <div class="fw-bold <%= t.debet != '0' ? 'text-danger' : 'text-success' %>">
+                                        <%= t.debet != '0' ? '-' + t.debet : '+' + t.kredit %>
+                                    </div>
+                                    <div class="small text-muted" style="font-size: 10px;">Saldo: <%= t.saldo %></div>
+                                </td>
                                 <td class="text-center">
                                     <% if(t.bukti && t.bukti.toLowerCase().includes('http')) { %>
-                                        <a href="<%= t.bukti %>" target="_blank" class="btn btn-sm btn-primary rounded-pill px-3" style="font-size: 10px;">BUKTI</a>
+                                        <a href="<%= t.bukti %>" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 10px;">BUKTI</a>
                                     <% } else { %> - <% } %>
                                 </td>
                             </tr>
@@ -155,6 +155,28 @@
 </div>
 
 <script>
+    function formatDateString(str) {
+        if(!str || !str.includes('/')) return str;
+        const part = str.split('/');
+        const date = new Date(part[2], part[1]-1, part[0]);
+        return date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    // Jalankan format tanggal pas halaman siap
+    document.querySelectorAll('.tgl-format').forEach(el => {
+        el.innerText = formatDateString(el.innerText);
+    });
+
+    // Default: Cuma tampilkan 10 baris terakhir (paling bawah)
+    function setInitialView() {
+        document.querySelectorAll('.data-row').forEach(row => {
+            const idx = parseInt(row.getAttribute('data-index'));
+            const total = parseInt(row.getAttribute('data-total'));
+            if (idx < total - 10) row.style.display = 'none';
+        });
+    }
+    setInitialView();
+
     function openMenu(id, el) {
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
@@ -162,17 +184,27 @@
         el.classList.add('active');
     }
 
-    function filterData(tableId, monthId, yearId) {
-        const month = document.getElementById(monthId).value;
-        const year = document.getElementById(yearId).value;
-        const rows = document.querySelectorAll(`#${tableId} .data-row`);
+    function showFilter(filterId, tableId, btn) {
+        const filter = document.getElementById(filterId);
+        if(filter.style.display === 'block') {
+            filter.style.display = 'none';
+            btn.innerText = "LIHAT RIWAYAT LENGKAP";
+            setInitialView();
+        } else {
+            filter.style.display = 'block';
+            btn.innerText = "TAMPILKAN 10 TERAKHIR";
+            document.querySelectorAll(`#${tableId} .data-row`).forEach(r => r.style.display = '');
+        }
+    }
 
-        rows.forEach(row => {
-            const dateText = row.cells[0].innerText; // Tgl ada di kolom pertama
-            const matchMonth = month === "" || dateText.includes(month);
-            const matchYear = year === "" || dateText.includes(year);
-            
-            row.style.display = (matchMonth && matchYear) ? "" : "none";
+    function applyFilter(tableId, mId, yId) {
+        const m = document.getElementById(mId).value;
+        const y = document.getElementById(yId).value;
+        document.querySelectorAll(`#${tableId} .data-row`).forEach(row => {
+            const text = row.cells[0].innerText;
+            const matchM = m === "" || text.includes(m);
+            const matchY = y === "" || text.includes(y);
+            row.style.display = (matchM && matchY) ? "" : "none";
         });
     }
 </script>
