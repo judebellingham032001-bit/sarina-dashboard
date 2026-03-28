@@ -61,7 +61,7 @@
             </div></div>
             <div class="table-responsive">
                 <table class="table text-center align-middle" id="tableShip">
-                    <thead class="table-dark"><tr><th>Tanggal</th><th>SPX</th><th>JNE</th><th>J&T</th><th>Same/Inst</th><th>TOT</th></tr></thead>
+                    <thead class="table-dark"><tr><th>Tanggal</th><th>SPX</th><th>JNE</th><th>J&T</th><th>Same/Inst</th><th>TOTAL</th></tr></thead>
                     <tbody><% shippingAll.forEach((k, index) => { %><tr class="data-row" data-index="<%= index %>" data-total="<%= shippingAll.length %>"><td class="nowrap fw-bold text-start tgl-format"><%= k.tgl %></td><td><%= k.spx %></td><td><%= k.jne %></td><td><%= k.jnt %></td><td><%= k.sd %></td><td class="nowrap fw-bold text-primary"><%= k.tot %></td></tr><% }) %></tbody>
                 </table>
             </div>
