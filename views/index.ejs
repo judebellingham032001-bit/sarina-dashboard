@@ -2,25 +2,24 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Sarina Dashboard - Shipping</title>
+    <title>Sarina Store Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; padding-top: 20px; }
-        .nav-custom { background: white; border-radius: 50px; padding: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .nav-pills .nav-link { border-radius: 50px; color: #57606f; font-weight: 600; padding: 10px 20px; border:none; }
-        .nav-pills .nav-link.active { background-color: #007bff; color: white; }
-        .card-main { background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 20px; border:none; }
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', sans-serif; padding-top: 20px; }
+        .nav-custom { background: white; border-radius: 50px; padding: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .nav-link { border-radius: 50px; color: #666; font-weight: bold; border: none; padding: 10px 25px; }
+        .nav-link.active { background: #007bff !important; color: white !important; }
+        .card-main { background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 20px; }
         .content-section { display: none; }
-        .content-section.active { display: block; animation: fadeIn 0.3s; }
+        .content-section.active { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .limit-view tr:nth-child(n+11) { display: none; }
+        /* Membatasi tampilan 10 baris terakhir */
+        .limit-view tr:nth-last-child(n+11) { display: none; }
         .full-view tr { display: table-row !important; }
-        .btn-more { background: #f1f3f5; border: none; border-radius: 12px; padding: 12px; width: 100%; color: #007bff; font-weight: bold; margin-top: 10px; cursor: pointer; }
-        .badge-status { padding: 5px 12px; border-radius: 50px; font-size: 0.7rem; font-weight: 700; }
-        .bg-habis { background: #ffeaa7; color: #d63031; } 
-        .bg-low { background: #fff9db; color: #e67e22; } 
-        .bg-aman { background: #e3fcef; color: #00a8ff; }
+        .btn-more { background: #e9ecef; border: none; border-radius: 12px; padding: 12px; width: 100%; color: #007bff; font-weight: bold; margin-top: 15px; }
+        .badge-stock { padding: 6px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; }
+        .bg-habis { background: #ffe5e5; color: #d63031; } .bg-aman { background: #e3fcef; color: #00b894; }
     </style>
 </head>
 <body>
@@ -36,17 +35,19 @@
 
     <div id="stocks" class="content-section active">
         <div class="card-main">
-            <div class="small text-muted mb-3 text-center">Last Updated: <span class="text-primary fw-bold"><%= lastUpdate %></span></div>
+            <div class="text-center mb-3">
+                <span class="badge bg-light text-primary border p-2">Terakhir Update Sheet: <%= lastUpdate %></span>
+            </div>
             <table class="table align-middle">
-                <thead><tr><th>Produk</th><th>Keterangan</th><th class="text-center">Status</th></tr></thead>
+                <thead class="table-light"><tr><th>Produk</th><th>Stok (Gabungan)</th><th class="text-center">Status</th></tr></thead>
                 <tbody>
                     <% stocks.forEach(s => { %>
                         <tr>
                             <td class="fw-bold"><%= s.nama %></td>
-                            <td><small><%= s.ds %></small></td>
+                            <td><span class="text-muted"><%= s.display %></span></td>
                             <td class="text-center">
-                                <span class="badge-status <%= s.qty <= 0 ? 'bg-habis' : (s.qty <= 2 ? 'bg-low' : 'bg-aman') %>">
-                                    <%= s.qty <= 0 ? 'HABIS' : (s.qty <= 2 ? 'LOW' : 'AMAN') %> (<%= s.qty %>)
+                                <span class="badge-stock <%= s.qty <= 0 ? 'bg-habis' : 'bg-aman' %>">
+                                    <%= s.qty <= 0 ? 'HABIS' : 'TERSEDIA' %>
                                 </span>
                             </td>
                         </tr>
@@ -58,18 +59,18 @@
 
     <div id="shipping" class="content-section">
         <div class="card-main">
-            <h5 class="fw-bold mb-3"><i class="fas fa-shipping-fast me-2"></i>History Shipping</h5>
+            <h5 class="fw-bold mb-3"><i class="fas fa-truck-loading me-2"></i>History Shipping</h5>
             <div class="table-responsive">
                 <table class="table text-center align-middle limit-view" id="tableShip">
-                    <thead class="table-dark small"><tr><th>Tgl</th><th>SPX</th><th>JNE</th><th>J&T</th><th>SD</th><th>TOT</th></tr></thead>
+                    <thead class="table-dark small"><tr><th>Tanggal</th><th>SPX</th><th>JNE</th><th>J&T</th><th>SD</th><th>Total</th></tr></thead>
                     <tbody>
                         <% shippingAll.forEach(k => { %>
-                            <tr><td class="small fw-bold text-start text-nowrap"><%= k.tgl %></td><td><%= k.spx %></td><td><%= k.jne %></td><td><%= k.jnt %></td><td><%= k.sd %></td><td class="fw-bold text-primary"><%= k.tot %></td></tr>
+                            <tr><td class="small fw-bold text-start"><%= k.tgl %></td><td><%= k.spx %></td><td><%= k.jne %></td><td><%= k.jnt %></td><td><%= k.sd %></td><td class="fw-bold text-primary"><%= k.tot %></td></tr>
                         <% }) %>
                     </tbody>
                 </table>
             </div>
-            <button class="btn-more" onclick="toggleView('tableShip', this)">Lihat Semua Shipping</button>
+            <button class="btn-more" onclick="toggleView('tableShip', this)">Lihat Semua History Shipping</button>
         </div>
     </div>
 
@@ -81,18 +82,18 @@
             </div>
             <div class="table-responsive">
                 <table class="table align-middle limit-view" id="tableKas">
-                    <thead class="table-light small"><tr><th>Tgl</th><th>Keterangan</th><th class="text-end">Debet</th><th class="text-end">Kredit</th><th class="text-end">Saldo</th><th class="text-center">Link</th></tr></thead>
+                    <thead class="table-light small"><tr><th>Tgl</th><th>Keterangan</th><th class="text-end">Debet</th><th class="text-end">Kredit</th><th class="text-end">Saldo</th><th class="text-center">Bukti</th></tr></thead>
                     <tbody>
                         <% kasAll.forEach(t => { %>
                             <tr style="font-size: 0.85rem;">
-                                <td class="text-nowrap text-muted"><%= t.tgl %></td>
-                                <td><div class="fw-bold text-uppercase"><%= t.kat %></div><div class="small text-muted"><%= t.ket %></div></td>
+                                <td class="text-muted"><%= t.tgl %></td>
+                                <td><div class="fw-bold"><%= t.kat %></div><div class="small text-muted"><%= t.ket %></div></td>
                                 <td class="text-end text-danger fw-bold"><%= t.debet != '0' ? '-' + t.debet : '' %></td>
                                 <td class="text-end text-success fw-bold"><%= t.kredit != '0' ? '+' + t.kredit : '' %></td>
                                 <td class="text-end fw-bold"><%= t.saldo %></td>
                                 <td class="text-center">
                                     <% if(t.bukti && t.bukti.toLowerCase().includes('http')) { %>
-                                        <a href="<%= t.bukti %>" target="_blank" class="text-primary fs-5"><i class="fas fa-file-invoice"></i></a>
+                                        <a href="<%= t.bukti %>" target="_blank" class="btn btn-sm btn-outline-primary py-0">Bukti Transaksi</a>
                                     <% } else { %> - <% } %>
                                 </td>
                             </tr>
@@ -100,7 +101,7 @@
                     </tbody>
                 </table>
             </div>
-            <button class="btn-more" onclick="toggleView('tableKas', this)">Lihat Semua Mutasi</button>
+            <button class="btn-more" onclick="toggleView('tableKas', this)">Lihat Semua History Kas</button>
         </div>
     </div>
 </div>
@@ -116,10 +117,10 @@
         const table = document.getElementById(tableId);
         if (table.classList.contains('limit-view')) {
             table.classList.remove('limit-view'); table.classList.add('full-view');
-            btn.innerText = "Sembunyikan Sebagian";
+            btn.innerText = "Sembunyikan Riwayat";
         } else {
             table.classList.remove('full-view'); table.classList.add('limit-view');
-            btn.innerText = (tableId === 'tableKas') ? "Lihat Semua Mutasi" : "Lihat Semua Shipping";
+            btn.innerText = (tableId === 'tableKas') ? "Lihat Semua History Kas" : "Lihat Semua History Shipping";
         }
     }
 </script>
