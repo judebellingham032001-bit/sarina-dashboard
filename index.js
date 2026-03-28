@@ -3,19 +3,16 @@ const axios = require('axios');
 const session = require('express-session');
 const app = express();
 
-// --- KONFIGURASI ---
 const PASSWORD_WEB = "sarina123"; 
-// -------------------
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
-    secret: 'sarina-secret-key',
+    secret: 'sarina-super-secret',
     resave: false,
     saveUninitialized: true
 }));
 
-// Helper pecah CSV
 function splitCSV(line) {
     const result = [];
     let cur = '';
@@ -30,7 +27,6 @@ function splitCSV(line) {
     return result;
 }
 
-// LOGIN PAGE
 app.get('/login', (req, res) => {
     res.send(`
         <body style="display:flex;justify-content:center;align-items:center;height:100vh;background:#f8f9fa;font-family:sans-serif">
@@ -52,7 +48,6 @@ app.post('/login', (req, res) => {
     }
 });
 
-// DASHBOARD
 app.get('/', async (req, res) => {
     if (!req.session.loggedIn) return res.redirect('/login');
 
@@ -65,38 +60,38 @@ app.get('/', async (req, res) => {
             axios.get(urlS), axios.get(urlR), axios.get(urlK)
         ]);
 
-        // 1. STOCKS
+        // 1. STOCKS (H1=Update, Data mulai baris 14)
         const linesS = resS.data.split(/\r?\n/);
-        const lastUpdate = splitCSV(linesS[0])[7] || "-"; 
+        const lastUpdate = splitCSV(linesS[0])[7] || "-"; // Cell H1
         const stocks = linesS.slice(13).map(l => {
             const c = splitCSV(l);
-            return { nama: c[0], qty: parseFloat(c[1]) || 0, ds: c[3] };
+            return { nama: c[0], qty: parseFloat(c[1]) || 0, satuan: c[2], display: c[3] };
         }).filter(i => i.nama);
 
-        // 2. SHIPPING (Reverse agar tgl terbaru di atas)
+        // 2. SHIPPING (History kronologis)
         const shippingAll = resR.data.split(/\r?\n/).slice(3).map(l => {
             const c = splitCSV(l);
             return { tgl: c[6], spx: c[7], jne: c[8], jnt: c[9], sd: c[10], tot: c[11] };
-        }).filter(i => i.tgl && i.tgl !== "0").reverse();
+        }).filter(i => i.tgl && i.tgl !== "0");
 
-        // 3. KAS (Reverse agar mutasi terbaru di atas)
+        // 3. KAS (History kronologis)
         const linesK = resK.data.split(/\r?\n/);
         let tempDate = ""; 
         const kasAll = linesK.slice(5).map(l => {
             const c = splitCSV(l);
             if (c[0] && c[0].trim() !== "") tempDate = c[0];
             return { tgl: tempDate, kat: c[1], ket: c[2], bukti: c[3], debet: c[4], kredit: c[5], saldo: c[6] };
-        }).filter(t => t.kat && t.kat !== "Kategori").reverse();
+        }).filter(t => t.kat && t.kat !== "Kategori");
 
-        const saldoTotal = kasAll[0] ? kasAll[0].saldo : "0"; // Saldo paling baru (setelah di-reverse)
+        const saldoTotal = kasAll.length > 0 ? kasAll[kasAll.length - 1].saldo : "0";
 
         res.render('index', { stocks, shippingAll, kasAll, saldoTotal, lastUpdate });
     } catch (e) {
-        res.status(500).send("Error koneksi Google Sheets: " + e.message);
+        res.status(500).send("Gagal ambil data: " + e.message);
     }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Dashboard Ready on port ${PORT}`);
+    console.log(`🚀 Sarina Dashboard Aktif di Port ${PORT}`);
 });
