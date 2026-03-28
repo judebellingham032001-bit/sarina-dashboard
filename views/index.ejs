@@ -3,112 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sarina Store - Industrial Dashboard</title>
+    <title>Sarina Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --dark: #1a1d21; --gray: #f8f9fa; --primary: #ffc107; }
-        
         body { 
-            /* BACKGROUND INDUSTRIAL WAREHOUSE (High Quality & Aesthetic) */
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
-                        url('https://images.unsplash.com/photo-1590496793929-36417d3117de?q=80&w=1600') no-repeat center center fixed;
-            background-size: cover;
-            min-height: 100vh; 
-            font-family: 'Inter', sans-serif; 
-            color: white; 
-            padding: 20px 0;
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
+                        url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1600') no-repeat center center fixed;
+            background-size: cover; min-height: 100vh; font-family: 'Inter', sans-serif; color: white; padding: 20px 0;
         }
-
-        /* LOGO & HEADER */
-        .header-logo { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; text-align: center; }
-        .logo-img { width: 130px; border-radius: 20px; box-shadow: 0 4px 15px rgba(255,193,7,0.3); }
-
-        /* NAVIGASI CAPSULE (Industrial Look) */
-        .nav-custom { 
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            border-radius: 50px; padding: 10px; border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
-        }
-        .nav-pills .nav-link { border-radius: 50px; color: rgba(255,255,255,0.7); font-weight: 800; border: none; padding: 10px 20px; transition: 0.3s; }
-        .nav-pills .nav-link.active { background: var(--primary) !important; color: #333 !important; }
-
-        /* CARDS (Industrial Transparent) */
-        .card-main { 
-            background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(15px);
-            border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px; margin-bottom: 25px;
-            animation: fadeIn 0.5s ease;
-        }
+        .header-area { text-align: center; margin-bottom: 30px; }
+        .logo-box { width: 100px; height: 100px; background: white; border-radius: 20px; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; border: 3px solid #ffc107; overflow: hidden; }
+        .logo-box img { width: 100%; height: auto; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-custom { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 50px; padding: 5px; border: 1px solid rgba(255,255,255,0.2); width: fit-content; margin: 0 auto 25px; }
+        .nav-pills .nav-link { border-radius: 50px; color: white; font-weight: bold; padding: 10px 25px; transition: 0.3s; }
+        .nav-pills .nav-link.active { background: #ffc107 !important; color: #000 !important; }
 
-        /* TABLE MOBILE FIX & NOWRAP */
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .nowrap { white-space: nowrap !important; }
+        .card-main { background: rgba(255,255,255,0.05); backdrop-filter: blur(15px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); padding: 20px; margin-bottom: 20px; }
+        
+        /* FIX TEXT HEADER TABLE */
+        .table thead th { color: #ffc107 !important; border-bottom: 2px solid rgba(255,255,255,0.1); text-transform: uppercase; font-size: 0.8rem; }
+        .table tbody td { color: white !important; vertical-align: middle; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        .badge-status { padding: 5px 12px; border-radius: 50px; font-size: 0.7rem; font-weight: bold; }
+        .bg-habis { background: #ff4d4d; } .bg-low { background: #ffa502; } .bg-aman { background: #2ed573; }
+        
+        .saldo-box { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; text-align: center; border-left: 5px solid #2ed573; margin-bottom: 20px; }
+        .saldo-minus { border-left-color: #ff4d4d; }
         .content-section { display: none; }
         .content-section.active { display: block; }
-        
-        .table { color: white !important; margin-bottom: 0; }
-        .table-light { --bs-table-bg: rgba(255,255,255,0.05); }
-
-        .filter-area { display: none; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
-        .form-select { background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; }
-        
-        /* BADGES STATUS */
-        .badge-status { padding: 5px 12px; border-radius: 50px; font-size: 0.7rem; font-weight: bold; }
-        .bg-habis { background: #ee5253; color: white; animation: pulse 2s infinite; } 
-        .bg-low { background: #ff9f43; color: #333; } 
-        .bg-aman { background: #10ac84; color: white; }
-
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(238,82,83,0.4); } 70% { box-shadow: 0 0 0 10px rgba(238,82,83,0); } 100% { box-shadow: 0 0 0 0 rgba(238,82,83,0); } }
-
-        /* SALDO KAS */
-        .saldo-card { background: rgba(0,0,0,0.4); border-radius: 15px; padding: 25px; text-align: center; margin-bottom: 20px; }
-        .saldo-minus h1 { color: #ee5253 !important; }
-        .display-4 { font-weight: 800; color: #10ac84; }
-
-        /* BUTTONS */
-        .btn-more { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); font-weight: bold; width: 100%; border-radius: 10px; padding: 10px; margin-top: 15px; }
-        .btn-more:hover { background: rgba(255,255,255,0.1); }
-        
-        .tgl-format { font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header-logo">
-        <img src="https://lh3.googleusercontent.com/zuoLF4h3hqAkI6NziYQd9K03F645672-01" alt="Sarina Store Logo" class="logo-img mb-2">
-        <div class="text-white opacity-50 small">Sarina Store Management System</div>
+    <div class="header-area">
+        <div class="logo-box">
+            <img src="https://i.ibb.co/Y7YxS9Y/sarina-logo.png" alt="Logo">
+        </div>
+        <h5 class="fw-bold mb-0">SARINA STORE</h5>
+        <small class="opacity-50">Management System</small>
     </div>
 
-    <div class="d-flex justify-content-center mb-4">
-        <ul class="nav nav-pills nav-custom shadow-sm">
-            <li class="nav-item"><button class="nav-link active" onclick="openMenu('stocks', this)">Stocks</button></li>
-            <li class="nav-item"><button class="nav-link" onclick="openMenu('shipping', this)">Shipping</button></li>
-            <li class="nav-item"><button class="nav-link" onclick="openMenu('kas', this)">Kas</button></li>
-        </ul>
-    </div>
+    <ul class="nav nav-pills nav-custom shadow-sm">
+        <li class="nav-item"><button class="nav-link active" onclick="openMenu('stocks', this)">STOCKS</button></li>
+        <li class="nav-item"><button class="nav-link" onclick="openMenu('shipping', this)">SHIPPING</button></li>
+        <li class="nav-item"><button class="nav-link" onclick="openMenu('kas', this)">KAS</button></li>
+    </ul>
 
     <div id="stocks" class="content-section active">
         <div class="card-main">
-            <div class="text-center mb-4 opacity-75 small">Terakhir Update Sheet: <strong class="text-warning"><%= lastUpdate %></strong></div>
+            <p class="text-center small opacity-50">Update: <%= lastUpdate %></p>
             <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead class="table-light"><tr><th>Produk</th><th>Keterangan</th><th class="text-center">Status</th></tr></thead>
+                <table class="table">
+                    <thead><tr><th>Produk</th><th>Detail</th><th class="text-center">Status</th></tr></thead>
                     <tbody>
                         <% stocks.forEach(s => { %>
                             <tr>
-                                <td class="fw-bold text-uppercase"><%= s.nama %></td>
-                                <td><small class="text-white-50 nowrap"><%= s.display %></small></td>
-                                <td class="text-center">
-                                    <span class="badge-status <%= s.qty <= 0 ? 'bg-habis' : (s.qty <= 2 ? 'bg-low' : 'bg-aman') %>">
-                                        <%= s.qty <= 0 ? 'Habis' : (s.qty <= 2 ? 'Low' : 'Tersedia') %>
-                                    </span>
+                                <td class="fw-bold"><%= s.nama %></td>
+                                <td class="small opacity-75"><%= s.display %></td>
+                                <td class="text-center"><span class="badge-status <%= s.qty <= 0 ? 'bg-habis' : (s.qty <= 2 ? 'bg-low' : 'bg-aman') %>"><%= s.qty <= 0 ? 'HABIS' : (s.qty <= 2 ? 'LOW' : 'ADA') %></span></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="shipping" class="content-section">
+        <div class="card-main">
+            <div class="table-responsive">
+                <table class="table text-center">
+                    <thead><tr><th>Tanggal</th><th>SPX</th><th>JNE</th><th>J&T</th><th>TOT</th></tr></thead>
+                    <tbody>
+                        <% shippingAll.slice(-10).forEach(k => { %>
+                            <tr>
+                                <td class="small text-start text-warning"><%= k.tgl %></td>
+                                <td><%= k.spx %></td><td><%= k.jne %></td><td><%= k.jnt %></td>
+                                <td class="fw-bold text-warning"><%= k.tot %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="kas" class="content-section">
+        <div class="saldo-box <%= saldoTotal.includes('-') ? 'saldo-minus' : '' %>">
+            <small class="opacity-50">TOTAL SALDO AKHIR</small>
+            <h2 class="fw-bold mb-0 text-success">Rp <%= saldoTotal %></h2>
+        </div>
+        <div class="card-main">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead><tr><th>Tanggal</th><th>Ket</th><th class="text-end">Mutasi</th></tr></thead>
+                    <tbody>
+                        <% kasAll.slice(-10).forEach(t => { %>
+                            <tr>
+                                <td class="small text-white-50"><%= t.tgl %></td>
+                                <td><div class="fw-bold small"><%= t.kat %></div><div style="font-size:10px" class="opacity-50"><%= t.ket %></div></td>
+                                <td class="text-end nowrap">
+                                    <div class="fw-bold <%= (t.debet && t.debet != '0') ? 'text-danger' : 'text-success' %>">
+                                        <%= (t.debet && t.debet != '0') ? '-' + t.debet : '+' + t.kredit %>
+                                    </div>
+                                    <div style="font-size:9px" class="opacity-50">Sisa: <%= t.saldo %></div>
                                 </td>
                             </tr>
                         <% }) %>
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openMenu(id, el) {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        el.classList.add('active');
+    }
+</script>
+</body>
+</html>
