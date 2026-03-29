@@ -7,20 +7,22 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background: #f1f5f9; font-family: sans-serif; padding: 20px; }
-        .card { border-radius: 12px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .nav-link { font-weight: bold; color: #64748b; cursor: pointer; }
+        .card { border-radius: 12px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-top: 20px; }
+        .nav-link { font-weight: bold; color: #64748b; cursor: pointer; border-radius: 10px !important; }
         .nav-pills .nav-link.active { background-color: #000 !important; }
+        .btn-dark { background: #000; border: none; border-radius: 10px; padding: 12px; font-weight: bold; }
         .section { display: none; } .section.active { display: block; }
+        .list-group-item { border: none; border-bottom: 1px solid #f1f5f9; font-size: 0.8rem; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container" style="max-width: 500px;">
         <div class="text-center mb-4">
-            <h2 class="fw-bold">SARINA STORE</h2>
-            <p class="text-muted small fw-bold">DIRECT SYSTEM</p>
+            <h2 class="fw-bold mb-0">SARINA STORE</h2>
+            <p class="text-muted small fw-bold">ADMIN SYSTEM</p>
         </div>
 
-        <ul class="nav nav-pills nav-justified bg-white p-1 rounded-3 mb-4 shadow-sm">
+        <ul class="nav nav-pills nav-justified bg-white p-1 rounded-3 mb-2 shadow-sm">
             <li class="nav-item"><a class="nav-link active" onclick="tab('stok', this)">STOK</a></li>
             <li class="nav-item"><a class="nav-link" onclick="tab('resi', this)">RESI</a></li>
         </ul>
@@ -30,8 +32,12 @@
                 <table class="table mb-0">
                     <% stocks.forEach(s => { %>
                         <tr>
-                            <td><b><%= s.nama %></b></td>
-                            <td class="text-end"><span class="badge bg-success"><%= s.statusTxt %></span></td>
+                            <td class="small fw-bold"><%= s.nama %></td>
+                            <td class="text-end">
+                                <span class="badge <%= s.statusTxt === 'HABIS' ? 'bg-danger' : (s.statusTxt === 'LOW' ? 'bg-warning text-dark' : 'bg-success') %>">
+                                    <%= s.statusTxt %>
+                                </span>
+                            </td>
                         </tr>
                     <% }) %>
                 </table>
@@ -41,14 +47,14 @@
         <div id="resi" class="section">
             <div class="card p-4">
                 <div class="mb-3">
-                    <label class="small fw-bold">BULAN (Contoh: FEBRUARI 2026)</label>
+                    <label class="small fw-bold">BULAN (Ex: FEBRUARI 2026)</label>
                     <input type="text" id="bln" class="form-control" placeholder="FEBRUARI 2026">
                 </div>
                 <div class="mb-3">
-                    <label class="small fw-bold">TANGGAL (Contoh: 01-02-2026)</label>
+                    <label class="small fw-bold">TANGGAL (Ex: 01-02-2026)</label>
                     <input type="text" id="tgl" class="form-control" placeholder="01-02-2026">
                 </div>
-                <button onclick="cariResi()" class="btn btn-dark w-100 fw-bold">CARI DI DRIVE</button>
+                <button onclick="cariResi()" class="btn btn-dark w-100">CARI DATA DRIVE</button>
                 <div id="hasil" class="mt-4"></div>
             </div>
         </div>
@@ -66,32 +72,32 @@
             const b = document.getElementById('bln').value;
             const t = document.getElementById('tgl').value;
             const h = document.getElementById('hasil');
-            
-            // LINK GOOGLE APPS SCRIPT KETUA
             const scriptUrl = "https://script.google.com/macros/s/AKfycbzreEqA8cBXoH2wuDpipchslc7pX5hWn0Kk-JOedaBVe3MEZo85VAXJgXwQhSwhJGJwKg/exec";
 
-            if(!b || !t) return alert("Isi data dulu Bos!");
-            h.innerHTML = '<div class="text-center small">🔍 Menghubungi Google Drive...</div>';
+            if(!b || !t) return alert("Isi dulu Bos!");
+            h.innerHTML = '<div class="text-center small py-3 text-muted">🔄 Sedang nembak Google Drive...</div>';
 
             try {
-                // KITA TEMBAK LANGSUNG DARI BROWSER (CLIENT-SIDE)
-                const finalUrl = `${scriptUrl}?tgl=${t}&bulan=${b}`;
-                const res = await fetch(finalUrl);
+                // Gunakan URLSearchParams biar spasi di "FEBRUARI 2026" gak bikin error
+                const params = new URLSearchParams({ tgl: t, bulan: b });
+                const res = await fetch(`${scriptUrl}?${params.toString()}`);
                 const data = await res.json();
 
                 if(!data || data.length === 0) {
-                    h.innerHTML = '<div class="alert alert-warning small">Data tidak ditemukan.</div>';
+                    h.innerHTML = '<div class="alert alert-warning small text-center">Data kosong. Cek nama folder!</div>';
                     return;
                 }
 
-                let html = '<div class="list-group shadow-sm">';
+                let html = '<div class="list-group shadow-sm border rounded-3">';
                 data.forEach(f => {
-                    html += `<a href="${f.url}" target="_blank" class="list-group-item list-group-item-action fw-bold small py-3">${f.name}</a>`;
+                    html += `<a href="${f.url}" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <span>${f.name}</span>
+                        <span class="badge bg-primary">BUKA</span>
+                    </a>`;
                 });
                 h.innerHTML = html + '</div>';
             } catch (e) {
-                console.error(e);
-                h.innerHTML = '<div class="alert alert-danger small">Gagal konek! Pastikan Apps Script sudah di-deploy "Anyone".</div>';
+                h.innerHTML = '<div class="alert alert-danger small text-center">Error Koneksi! Pastikan Apps Script di-set "Anyone".</div>';
             }
         }
     </script>
