@@ -2,120 +2,81 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SARINA DASHBOARD</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-        body { background: #f8fafc; font-family: 'Inter', sans-serif; color: #1e293b; }
-        .container { max-width: 500px; padding: 20px; }
-        .header-title { font-weight: 800; font-size: 1.8rem; letter-spacing: -1px; margin-bottom: 5px; color: #0f172a; text-align: center; }
-        .header-subtitle { font-size: 0.65rem; color: #64748b; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 25px; text-align: center; }
-        .nav-custom { background: #ffffff; border-radius: 12px; padding: 6px; border: 1px solid #e2e8f0; display: flex; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .nav-link { border-radius: 8px; color: #64748b; font-weight: 700; padding: 12px; font-size: 0.75rem; border: none; flex: 1; text-align: center; cursor: pointer; }
-        .nav-link.active { background: #0f172a !important; color: white !important; }
-        .card-main { background: white; border-radius: 16px; border: 1px solid #e2e8f0; margin-top: 20px; overflow: hidden; }
-        .content-section { display: none; } .content-section.active { display: block; }
-        th { font-size: 0.65rem; background: #f8fafc !important; color: #64748b !important; padding: 15px !important; text-transform: uppercase; border-bottom: 1px solid #e2e8f0 !important; }
-        td { padding: 15px !important; border-bottom: 1px solid #f1f5f9; }
-        .badge-status { padding: 6px 12px; border-radius: 8px; font-size: 0.6rem; font-weight: 800; }
-        .bg-out { background: #fee2e2; color: #dc2626; }
-        .bg-low { background: #fef3c7; color: #d97706; }
-        .bg-tersedia { background: #dcfce7; color: #16a34a; }
-        .btn-primary { background: #2563eb; border: none; border-radius: 10px; padding: 12px; font-weight: 700; font-size: 0.8rem; width: 100%; }
-        .btn-bukti { background: #f1f5f9; color: #1e293b; font-size: 0.65rem; font-weight: 700; padding: 8px 16px; border-radius: 8px; text-decoration: none; }
+        body { background: #f4f7f6; font-family: sans-serif; padding: 20px; }
+        .card { border-radius: 15px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .nav-pills .nav-link.active { background-color: #000; }
+        .nav-link { color: #666; font-weight: bold; cursor: pointer; }
+        .section { display: none; } .section.active { display: block; }
     </style>
 </head>
 <body>
+    <div class="container" style="max-width: 500px;">
+        <h2 class="text-center fw-bold mb-0">SARINA STORE</h2>
+        <p class="text-center text-muted small mb-4">OPERATIONAL DASHBOARD</p>
 
-<div class="container">
-    <div class="header-title">SARINA DASHBOARD</div>
-    <div class="header-subtitle">Admin Operasional</div>
-    
-    <div class="nav-custom">
-        <div class="nav-link active" onclick="openMenu('stocks', this)">STOK</div>
-        <div class="nav-link" onclick="openMenu('kas', this)">KAS</div>
-        <div class="nav-link" onclick="openMenu('resi', this)">RESI</div>
-    </div>
+        <ul class="nav nav-pills nav-justified bg-white p-1 rounded-pill mb-4 shadow-sm">
+            <li class="nav-item"><a class="nav-link active" onclick="show('stok', this)">STOK</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="show('resi', this)">RESI</a></li>
+        </ul>
 
-    <div id="stocks" class="content-section active">
-        <div class="card-main">
-            <table class="table mb-0">
-                <thead><tr><th class="ps-4">PRODUK</th><th class="text-center">QTY</th><th class="text-end pe-4">STATUS</th></tr></thead>
-                <tbody>
+        <div id="stok" class="section active">
+            <div class="card p-3">
+                <table class="table mb-0">
                     <% stocks.forEach(s => { %>
-                    <tr>
-                        <td class="ps-4 py-3 fw-bold text-uppercase" style="font-size:0.7rem"><%= s.nama %></td>
-                        <td class="text-center fw-bold"><%= s.display %></td>
-                        <td class="text-end pe-4">
-                            <span class="badge-status <%= s.statusTxt === 'TERSEDIA' ? 'bg-tersedia' : (s.statusTxt === 'LOW' ? 'bg-low' : 'bg-out') %>">
-                                <%= s.statusTxt %>
-                            </span>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td><b><%= s.nama %></b></td>
+                            <td class="text-end"><span class="badge bg-success"><%= s.statusTxt %></span></td>
+                        </tr>
                     <% }) %>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div id="kas" class="content-section">
-        <div class="card-main p-4 text-center text-muted" style="font-size: 0.75rem;">
-            Data Kas Sedang Disiapkan...
-        </div>
-    </div>
-
-    <div id="resi" class="content-section">
-        <div class="card-main p-4">
-            <div class="mb-3">
-                <label class="fw-bold mb-2" style="font-size:0.7rem;">Bulan & Tahun (Contoh: MARET 2026)</label>
-                <input type="text" id="inputBulan" class="form-control shadow-none" placeholder="FEBRUARI 2026">
+                </table>
             </div>
-            <div class="mb-4">
-                <label class="fw-bold mb-2" style="font-size:0.7rem;">Tanggal (Contoh: 22-03-2026)</label>
-                <input type="text" id="inputTgl" class="form-control shadow-none" placeholder="01-02-2026">
+        </div>
+
+        <div id="resi" class="section">
+            <div class="card p-4">
+                <div class="mb-3">
+                    <label class="small fw-bold">BULAN (Contoh: FEBRUARI 2026)</label>
+                    <input type="text" id="bln" class="form-control" placeholder="FEBRUARI 2026">
+                </div>
+                <div class="mb-3">
+                    <label class="small fw-bold">TANGGAL (Contoh: 01-02-2026)</label>
+                    <input type="text" id="tgl" class="form-control" placeholder="01-02-2026">
+                </div>
+                <button onclick="cari()" class="btn btn-dark w-100 fw-bold">CARI DATA</button>
+                <div id="hasil" class="mt-3"></div>
             </div>
-            <button onclick="cariResi()" class="btn btn-primary">CARI DATA DRIVE</button>
-            <div id="listResi" class="mt-4"></div>
         </div>
     </div>
-</div>
 
-<script>
-    function openMenu(id, el) {
-        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        el.classList.add('active');
-    }
-
-    async function cariResi() {
-        const t = document.getElementById('inputTgl').value;
-        const b = document.getElementById('inputBulan').value;
-        const c = document.getElementById('listResi');
-        if(!t || !b) return alert("Wajib isi semua Bos!");
-        
-        c.innerHTML = '<div class="text-center py-4"><div class="spinner-border spinner-border-sm text-secondary"></div><p class="mt-2" style="font-size:0.7rem">Narik Data Drive...</p></div>';
-        
-        try {
-            const res = await fetch(`/get-resi?tgl=${t}&bulan=${b}`);
-            const data = await res.json();
-            if(!data || data.length === 0) {
-                c.innerHTML = '<div class="alert alert-light border text-center" style="font-size:0.7rem;">Gak ada PDF di folder itu Bos.</div>';
-                return;
-            }
-            let html = '<div class="list-group list-group-flush border rounded-3">';
-            data.forEach(f => {
-                html += `<div class="list-group-item d-flex justify-content-between align-items-center py-3" style="font-size:0.7rem">
-                    <span class="fw-bold text-truncate me-2">${f.name}</span>
-                    <a href="${f.url}" target="_blank" class="btn-bukti">BUKA</a>
-                </div>`;
-            });
-            c.innerHTML = html + '</div>';
-        } catch (e) {
-            c.innerHTML = '<div class="alert alert-danger py-2 text-center" style="font-size:0.7rem">Koneksi Putus! Cek Logs Railway.</div>';
+    <script>
+        function show(id, el) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            el.classList.add('active');
         }
-    }
-</script>
+
+        async function cari() {
+            const b = document.getElementById('bln').value;
+            const t = document.getElementById('tgl').value;
+            const h = document.getElementById('hasil');
+            if(!b || !t) return alert("Isi dulu Bos!");
+            h.innerHTML = "Sabar, lagi nembak Google Drive...";
+            try {
+                const res = await fetch(`/get-resi?tgl=${t}&bulan=${b}`);
+                const data = await res.json();
+                if(!data || data.length === 0) { h.innerHTML = "Gak ada file, Bos!"; return; }
+                let html = '<div class="list-group">';
+                data.forEach(f => {
+                    html += `<a href="${f.url}" target="_blank" class="list-group-item list-group-item-action small">${f.name}</a>`;
+                });
+                h.innerHTML = html + '</div>';
+            } catch (e) { h.innerHTML = "Koneksi Gagal!"; }
+        }
+    </script>
 </body>
 </html>
