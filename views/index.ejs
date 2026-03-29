@@ -6,20 +6,21 @@
     <title>SARINA DASHBOARD</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #f1f5f9; font-family: sans-serif; padding: 20px; }
-        .card { border-radius: 12px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-top: 20px; }
-        .nav-link { font-weight: bold; color: #64748b; cursor: pointer; border-radius: 10px !important; }
-        .nav-pills .nav-link.active { background-color: #000 !important; }
-        .btn-dark { background: #000; border: none; border-radius: 10px; padding: 12px; font-weight: bold; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap');
+        body { background: #f1f5f9; font-family: 'Inter', sans-serif; padding: 20px; }
+        .card { border-radius: 15px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-top: 20px; }
+        .nav-link { font-weight: 700; color: #64748b; cursor: pointer; border-radius: 10px !important; }
+        .nav-pills .nav-link.active { background-color: #000 !important; color: white; }
+        .btn-dark { background: #000; border: none; border-radius: 12px; padding: 12px; font-weight: 800; }
         .section { display: none; } .section.active { display: block; }
-        .list-group-item { border: none; border-bottom: 1px solid #f1f5f9; font-size: 0.8rem; font-weight: bold; }
+        .badge-status { font-size: 0.65rem; font-weight: 800; padding: 5px 10px; border-radius: 8px; }
     </style>
 </head>
 <body>
     <div class="container" style="max-width: 500px;">
         <div class="text-center mb-4">
             <h2 class="fw-bold mb-0">SARINA STORE</h2>
-            <p class="text-muted small fw-bold">ADMIN SYSTEM</p>
+            <p class="text-muted small fw-bold" style="letter-spacing: 2px;">DASHBOARD ADMIN</p>
         </div>
 
         <ul class="nav nav-pills nav-justified bg-white p-1 rounded-3 mb-2 shadow-sm">
@@ -32,9 +33,9 @@
                 <table class="table mb-0">
                     <% stocks.forEach(s => { %>
                         <tr>
-                            <td class="small fw-bold"><%= s.nama %></td>
-                            <td class="text-end">
-                                <span class="badge <%= s.statusTxt === 'HABIS' ? 'bg-danger' : (s.statusTxt === 'LOW' ? 'bg-warning text-dark' : 'bg-success') %>">
+                            <td class="small fw-bold py-3"><%= s.nama %></td>
+                            <td class="text-end py-3">
+                                <span class="badge-status <%= s.statusTxt === 'HABIS' ? 'bg-danger text-white' : (s.statusTxt === 'LOW' ? 'bg-warning text-dark' : 'bg-success text-white') %>">
                                     <%= s.statusTxt %>
                                 </span>
                             </td>
@@ -47,14 +48,14 @@
         <div id="resi" class="section">
             <div class="card p-4">
                 <div class="mb-3">
-                    <label class="small fw-bold">BULAN (Ex: FEBRUARI 2026)</label>
+                    <label class="small fw-bold text-muted">BULAN (Ex: MARET 2026)</label>
                     <input type="text" id="bln" class="form-control" placeholder="FEBRUARI 2026">
                 </div>
-                <div class="mb-3">
-                    <label class="small fw-bold">TANGGAL (Ex: 01-02-2026)</label>
+                <div class="mb-4">
+                    <label class="small fw-bold text-muted">TANGGAL (Ex: 22-03-2026)</label>
                     <input type="text" id="tgl" class="form-control" placeholder="01-02-2026">
                 </div>
-                <button onclick="cariResi()" class="btn btn-dark w-100">CARI DATA DRIVE</button>
+                <button onclick="cariResi()" class="btn btn-dark w-100">CARI DATA DI DRIVE</button>
                 <div id="hasil" class="mt-4"></div>
             </div>
         </div>
@@ -72,32 +73,30 @@
             const b = document.getElementById('bln').value;
             const t = document.getElementById('tgl').value;
             const h = document.getElementById('hasil');
-            const scriptUrl = "https://script.google.com/macros/s/AKfycbzreEqA8cBXoH2wuDpipchslc7pX5hWn0Kk-JOedaBVe3MEZo85VAXJgXwQhSwhJGJwKg/exec";
 
-            if(!b || !t) return alert("Isi dulu Bos!");
-            h.innerHTML = '<div class="text-center small py-3 text-muted">🔄 Sedang nembak Google Drive...</div>';
+            if(!b || !t) return alert("Isi data dulu Bos!");
+            h.innerHTML = '<div class="text-center small py-3 text-muted">🔄 Server sedang narik data Google Drive...</div>';
 
             try {
-                // Gunakan URLSearchParams biar spasi di "FEBRUARI 2026" gak bikin error
-                const params = new URLSearchParams({ tgl: t, bulan: b });
-                const res = await fetch(`${scriptUrl}?${params.toString()}`);
+                // Manggil route proxy di server Railway sendiri
+                const res = await fetch(`/api/resi?tgl=${t}&bulan=${b}`);
                 const data = await res.json();
 
-                if(!data || data.length === 0) {
-                    h.innerHTML = '<div class="alert alert-warning small text-center">Data kosong. Cek nama folder!</div>';
+                if(!data || data.length === 0 || data.error) {
+                    h.innerHTML = '<div class="alert alert-warning small text-center fw-bold">Data Gak Ada. Cek Nama Folder!</div>';
                     return;
                 }
 
                 let html = '<div class="list-group shadow-sm border rounded-3">';
                 data.forEach(f => {
-                    html += `<a href="${f.url}" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    html += `<a href="${f.url}" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center fw-bold small py-3">
                         <span>${f.name}</span>
                         <span class="badge bg-primary">BUKA</span>
                     </a>`;
                 });
                 h.innerHTML = html + '</div>';
             } catch (e) {
-                h.innerHTML = '<div class="alert alert-danger small text-center">Error Koneksi! Pastikan Apps Script di-set "Anyone".</div>';
+                h.innerHTML = '<div class="alert alert-danger small text-center fw-bold">Koneksi Server Gagal!</div>';
             }
         }
     </script>
